@@ -1,6 +1,5 @@
 package com.example.mymessenger.ui.settings
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,7 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import com.example.mymessenger.R
+import androidx.fragment.app.activityViewModels
+import com.example.mymessenger.AppViewModel
 import com.example.mymessenger.databinding.FragmentSettingsBinding
 
 class SettingsFragment : Fragment() {
@@ -16,8 +16,7 @@ class SettingsFragment : Fragment() {
     private val binding get() = _binding!!
     private val TAG = "SettingsFragment"
 
-    private val PREFS = "app_prefs"
-    private val KEY_DARK = "dark_mode"
+    private val viewModel: AppViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,17 +25,18 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         Log.d(TAG, "onCreateView")
 
-        val prefs = requireActivity().getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val isDark = prefs.getBoolean(KEY_DARK, false)
-        binding.switchTheme.isChecked = isDark
+        viewModel.isDarkTheme.observe(viewLifecycleOwner) { enabled ->
+            binding.switchTheme.isChecked = enabled
+        }
 
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
-            Log.d(TAG, "Theme switch toggled: $isChecked")
-            prefs.edit().putBoolean(KEY_DARK, isChecked).apply()
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
-            )
+            Log.d(TAG, "Theme: $isChecked")
+            viewModel.setDarkTheme(isChecked)
+
+            binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
+                viewModel.setDarkTheme(isChecked)
+            }
+
         }
 
         return binding.root

@@ -6,13 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.mymessenger.R
+import androidx.fragment.app.activityViewModels
+import com.example.mymessenger.AppViewModel
 import com.example.mymessenger.databinding.FragmentProfileBinding
 
 class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ProfileFragment"
+
+    private val viewModel: AppViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -21,8 +24,18 @@ class ProfileFragment : Fragment() {
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         Log.d(TAG, "onCreateView")
 
-        binding.profileName.text = getString(R.string.profile_name)
-        binding.profileEmail.text = getString(R.string.profile_email)
+        viewModel.userName.observe(viewLifecycleOwner) { name ->
+            binding.profileName.text = name
+        }
+
+        viewModel.userEmail.observe(viewLifecycleOwner) { email ->
+            binding.profileEmail.text = email
+        }
+
+        binding.btnSave.setOnClickListener {
+            viewModel.updateName(binding.inputName.text.toString())
+            viewModel.updateEmail(binding.inputEmail.text.toString())
+        }
 
         return binding.root
     }
