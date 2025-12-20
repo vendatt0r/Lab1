@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/feedFragment"
-        android:name="com.example.messenger.ui.feed.FeedFragment"
+        android:name="com.example.mymessenger.ui.feed.FeedFragment"
         android:label="@string/feed" />
 
     <fragment
