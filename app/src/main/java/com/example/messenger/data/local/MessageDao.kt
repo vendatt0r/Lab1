@@ -18,6 +18,8 @@ interface MessageDao {
     suspend fun clearMessages()
     @Query("UPDATE messages SET isLiked = :liked WHERE id = :id")
     suspend fun updateLike(id: Int, liked: Boolean)
+    @Query("SELECT * FROM messages WHERE isLiked = 1")
+    suspend fun getLikedMessages(): List<MessageEntity>
 
 }
 

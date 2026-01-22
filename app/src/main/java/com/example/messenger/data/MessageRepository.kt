@@ -47,6 +47,8 @@ class MessageRepository(
         )
     }
 
+    suspend fun getLikedMessages(): List<MessageEntity> =
+        dao.getLikedMessages()
 
 
 }

@@ -1,5 +1,6 @@
 package com.example.mymessenger.ui.profile
 
+import MessageAdapter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.mymessenger.AppViewModel
 import com.example.mymessenger.databinding.FragmentProfileBinding
 
@@ -14,8 +17,11 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val TAG = "ProfileFragment"
-
     private val viewModel: AppViewModel by activityViewModels()
+
+    private val profileViewModel: ProfileViewModel by viewModels()
+    private lateinit var adapter: MessageAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,6 +41,19 @@ class ProfileFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             viewModel.updateName(binding.inputName.text.toString())
             viewModel.updateEmail(binding.inputEmail.text.toString())
+        }
+        adapter = MessageAdapter { message ->
+            profileViewModel.removeFromFavorites(message)
+        }
+
+
+        binding.favoritesRecycler.layoutManager =
+            LinearLayoutManager(requireContext())
+
+        binding.favoritesRecycler.adapter = adapter
+
+        profileViewModel.favorites.observe(viewLifecycleOwner) {
+            adapter.submitList(it)
         }
 
         return binding.root
