@@ -10,6 +10,13 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.example.mymessenger.databinding.ActivityMainBinding
 import com.example.mymessenger.AppViewModel
+import androidx.work.*
+import java.util.concurrent.TimeUnit
+import com.example.mymessenger.work.SyncWorker
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,6 +29,12 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (android.os.Build.VERSION.SDK_INT >= 33) {
+            requestPermissions(
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                100
+            )
+        }
 
         appViewModel.isDarkTheme.observe(this) { enabled ->
             AppCompatDelegate.setDefaultNightMode(
@@ -32,6 +45,16 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        val syncWork =
+            PeriodicWorkRequestBuilder<SyncWorker>(
+                15, TimeUnit.MINUTES
+            ).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "sync_messages",
+            ExistingPeriodicWorkPolicy.KEEP,
+            syncWork
+        )
 
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
@@ -39,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
 
         Log.d(TAG, "onCreate")
+
     }
 
 

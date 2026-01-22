@@ -13,22 +13,40 @@ class MessageRepository(
 
     suspend fun getMessages(): List<MessageEntity> = withContext(Dispatchers.IO) {
         try {
-            // 1. Пытаемся загрузить из сети
             val apiMessages = RetrofitClient.api.getMessages()
 
+            val localMessages = dao.getAllMessages()
+            val likedMap = localMessages.associateBy(
+                { it.id },
+                { it.isLiked }
+            )
+
             val entities = apiMessages.map {
-                MessageEntity(it.id, it.title, it.body)
+                MessageEntity(
+                    id = it.id,
+                    title = it.title,
+                    body = it.body,
+                    isLiked = likedMap[it.id] ?: false
+                )
             }
 
-            // 2. Сохраняем в базу
             dao.clearMessages()
             dao.insertMessages(entities)
 
             entities
         } catch (e: Exception) {
             Log.e("Repository", "No internet, loading from DB")
-            // 3. Если нет сети — грузим из Room
             dao.getAllMessages()
         }
     }
+
+    suspend fun toggleLike(message: MessageEntity) {
+        dao.updateLike(
+            id = message.id,
+            liked = !message.isLiked
+        )
+    }
+
+
+
 }

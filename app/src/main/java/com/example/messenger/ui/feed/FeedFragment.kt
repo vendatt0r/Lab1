@@ -27,7 +27,10 @@ class FeedFragment : Fragment() {
         _binding = FragmentFeedBinding.inflate(inflater, container, false)
         Log.d(TAG, "onCreateView")
 
-        adapter = MessageAdapter()
+        adapter = MessageAdapter {
+            viewModel.onLikeClicked(it)
+        }
+
 
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = adapter

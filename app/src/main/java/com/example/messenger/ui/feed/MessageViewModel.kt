@@ -32,4 +32,11 @@ class MessageViewModel(application: Application) : AndroidViewModel(application)
         super.onCleared()
         Log.d("MessageViewModel", "cleared")
     }
+    fun onLikeClicked(message: MessageEntity) {
+        viewModelScope.launch {
+            repository.toggleLike(message)
+            _messages.value = repository.getMessages()
+        }
+    }
+
 }
