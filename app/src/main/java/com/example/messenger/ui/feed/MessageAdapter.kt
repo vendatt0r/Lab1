@@ -32,6 +32,7 @@ class MessageAdapter(
 
         holder.binding.title.text = item.title
         holder.binding.body.text = item.body
+        holder.binding.avatar.setImageResource(item.avatarRes)
 
         holder.binding.like.setImageResource(
             if (item.isLiked)
